@@ -38,77 +38,74 @@ Este projeto é disponibilizado gratuitamente para a comunidade de radioamadores
 ## � Diagrama de Ligação
 
 ```mermaid
-graph TD
-    %% Nós de Alimentação
-    POWER_24V[Fonte 12V/24V]
-    POWER_Logic[Fonte Lógica]
-    GND[GND Comum]
+flowchart LR
+    %% Definição de Estilos
+    classDef power fill:#ffcc80,stroke:#e65100,stroke-width:2px,color:black
+    classDef mcu fill:#b3e5fc,stroke:#0277bd,stroke-width:2px,color:black
+    classDef driver fill:#ffcdd2,stroke:#c62828,stroke-width:2px,color:black
+    classDef sensor fill:#e1bee7,stroke:#6a1b9a,stroke-width:2px,color:black
+    classDef motor fill:#dcedc8,stroke:#558b2f,stroke-width:2px,color:black
+    classDef ground fill:#cfd8dc,stroke:#455a64,stroke-width:2px,color:black
 
-    %% MCU ESP32-S3
-    subgraph MCU [ESP32-S3]
-        ESP_GND[GND]
-        ESP_3V3[3.3V]
-        GPIO4[GPIO 4 / SDA]
-        GPIO5[GPIO 5 / SCL]
-        GPIO6[GPIO 6 / RPWM]
-        GPIO7[GPIO 7 / LPWM]
-        GPIO15[GPIO 15 / EN]
+    %% --- BLOCO DE ALIMENTAÇÃO ---
+    subgraph POWER [⚡ Fonte de Energia]
+        direction TB
+        VCC_12V(12V / 24V):::power
+        GND(GND Comum):::ground
     end
 
-    %% Driver BTS7960
-    subgraph DRIVER [BTS7960]
-        BTS_RPWM[RPWM]
-        BTS_LPWM[LPWM]
-        BTS_REN[R_EN]
-        BTS_LEN[L_EN]
-        BTS_VCC[VCC Logic]
-        BTS_GND[GND Logic]
-        BTS_M_PLUS[M+]
-        BTS_M_MINUS[M-]
-        BTS_B_PLUS[B+]
-        BTS_B_MINUS[B-]
+    %% --- BLOCO CONTROLLER ---
+    subgraph ESP32 [🧠 Microcontrolador ESP32-S3]
+        direction TB
+        ESP_3V3(3.3V Out):::mcu
+        ESP_I2C(I2C: GPIO 4/5):::mcu
+        ESP_PWM(PWM: GPIO 6/7):::mcu
+        ESP_EN(Enable: GPIO 15):::mcu
     end
 
-    %% Encoder MT6701
-    subgraph ENCODER [MT6701]
-        ENC_VCC[VCC]
-        ENC_GND[GND]
-        ENC_SDA[SDA]
-        ENC_SCL[SCL]
+    %% --- BLOCO SENSOR ---
+    subgraph MT6701 [🧭 Encoder MT6701]
+        direction TB
+        MT_PWR(VCC / GND):::sensor
+        MT_DATA(SDA / SCL):::sensor
     end
 
-    %% Motor
-    MOTOR_DC((Motor DC))
+    %% --- BLOCO DRIVER ---
+    subgraph BTS7960 [🔌 Driver BTS7960]
+        direction TB
+        BTS_LOGIC(VCC / GND Lógico):::driver
+        BTS_CTRL(RPWM / LPWM):::driver
+        BTS_ENABLE(R_EN / L_EN):::driver
+        BTS_POWER(B+ / B-):::driver
+        BTS_OUT(M+ / M-):::driver
+    end
 
-    %% Ligações Lógicas (Azul)
-    GPIO4 --- ENC_SDA
-    GPIO5 --- ENC_SCL
-    GPIO6 --> BTS_RPWM
-    GPIO7 --> BTS_LPWM
-    GPIO15 --> BTS_REN
-    GPIO15 --> BTS_LEN
+    %% --- BLOCO MOTOR ---
+    subgraph MECHANICAL [⚙️ Atuador]
+        MOTOR((Motor Bosch)):::motor
+    end
 
-    %% Ligações de Energia (Vermelho/Preto)
-    POWER_24V ==> BTS_B_PLUS
-    GND ==> BTS_B_MINUS
+    %% CONEXÕES
     
-    POWER_Logic --> BTS_VCC
-    GND --> BTS_GND
+    %% Energia Principal
+    VCC_12V ==> BTS_POWER
+    GND ==> BTS_POWER
     
-    ESP_3V3 --> ENC_VCC
-    GND --> ENC_GND
+    %% Energia Lógica
+    ESP_3V3 --> MT_PWR
+    ESP_3V3 --> BTS_LOGIC
+    GND -.-> MT_PWR
+    GND -.-> BTS_LOGIC
+
+    %% Sinais de Controle (ESP -> Driver)
+    ESP_PWM -->|PWM| BTS_CTRL
+    ESP_EN -->|Ativação| BTS_ENABLE
     
-    %% Ligações Internas
-    GND --> ESP_GND
+    %% Sinais de Sensor (ESP <-> Encoder)
+    ESP_I2C <-->|Comunicação I2C| MT_DATA
 
-    %% Saída Motor (Grosso)
-    BTS_M_PLUS ==> MOTOR_DC
-    BTS_M_MINUS ==> MOTOR_DC
-
-    linkStyle default stroke-width:2px,fill:none,stroke:#333
-    linkStyle 0,1,2,3,4,5,8,9,10,11,12 stroke:#2962ff,stroke-width:2px
-    linkStyle 6,7 stroke:#d50000,stroke-width:3px
-    linkStyle 13,14 stroke:#ff6d00,stroke-width:3px
+    %% Potência Motor (Driver -> Motor)
+    BTS_OUT ==>|Alta Corrente| MOTOR
 ```
 
 ## �🚀 Quick Start
