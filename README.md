@@ -105,10 +105,10 @@ graph TD
     BTS_M_PLUS ==> MOTOR_DC
     BTS_M_MINUS ==> MOTOR_DC
 
-    linkStyle default stroke-width:2px,fill:none,stroke:#333;
-    linkStyle 6,7,8,9,10,11 stroke:#2962ff,stroke-width:2px; %% Lógica
-    linkStyle 12,13 stroke:#d50000,stroke-width:3px; %% Potência
-    linkStyle 20,21 stroke:#ff6d00,stroke-width:3px; %% Motor
+    linkStyle default stroke-width:2px,fill:none,stroke:#333
+    linkStyle 6,7,8,9,10,11 stroke:#2962ff,stroke-width:2px
+    linkStyle 12,13 stroke:#d50000,stroke-width:3px
+    linkStyle 20,21 stroke:#ff6d00,stroke-width:3px
 ```
 
 ## �🚀 Quick Start
