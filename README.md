@@ -85,27 +85,42 @@ flowchart LR
         MOTOR((Motor Bosch)):::motor
     end
 
-    %% CONEXÕES
+    %% CONEXÕES (Com Cores)
     
-    %% Energia Principal
+    %% 0. Energia Principal (Vermelho Potência)
     VCC_12V ==> BTS_POWER
+    %% 1. GND Principal (Preto)
     GND ==> BTS_POWER
     
-    %% Energia Lógica
+    %% 2. Lógica 3V3 (Vermelho Claro)
     ESP_3V3 --> MT_PWR
+    %% 3. Lógica 3V3 (Vermelho Claro)
     ESP_3V3 --> BTS_LOGIC
+    
+    %% 4. GND Lógico (Cinza tracejado)
     GND -.-> MT_PWR
+    %% 5. GND Lógico (Cinza tracejado)
     GND -.-> BTS_LOGIC
 
-    %% Sinais de Controle (ESP -> Driver)
+    %% 6. Controle PWM (Verde)
     ESP_PWM -->|PWM| BTS_CTRL
+    %% 7. Controle Enable (Verde)
     ESP_EN -->|Ativação| BTS_ENABLE
     
-    %% Sinais de Sensor (ESP <-> Encoder)
-    ESP_I2C <-->|Comunicação I2C| MT_DATA
+    %% 8. Dados I2C (Azul)
+    ESP_I2C <-->|I2C| MT_DATA
 
-    %% Potência Motor (Driver -> Motor)
+    %% 9. Saída Motor (Laranja Potência)
     BTS_OUT ==>|Alta Corrente| MOTOR
+
+    %% DEGRADÊ DE ESTILOS
+    linkStyle 0 stroke:#d50000,stroke-width:3px,color:red;
+    linkStyle 1 stroke:#212121,stroke-width:3px,color:black;
+    linkStyle 2,3 stroke:#ff5252,stroke-width:2px,color:#ff5252;
+    linkStyle 4,5 stroke:#757575,stroke-width:2px,stroke-dasharray: 5 5;
+    linkStyle 6,7 stroke:#2e7d32,stroke-width:2px,color:#2e7d32;
+    linkStyle 8 stroke:#2962ff,stroke-width:2px,color:#2962ff;
+    linkStyle 9 stroke:#ff6d00,stroke-width:4px,color:#ff6d00;
 ```
 
 ## �🚀 Quick Start
